@@ -23,6 +23,7 @@ class TwitchAPI {
     public function __construct( $r_url ) {
         $this->redirect_url = $r_url;
     }
+    
     /**
      * Generates an authentication URL with the scope.
      *
@@ -182,10 +183,9 @@ class TwitchAPI {
      * @param string $Name       Channel name of partnered streamer.
      * @param string $AT        Access token of channel
      * @param int $count        How many users to retrieve data of.
-     * @param boolean $return_json      To return raw JSON data or decode to array with json_decode().
      * @return array        Array with subscriber data
      */
-    function GetSubData( $Name, $AT, $count, $return_json = false ) {
+    function GetSubData( $Name, $AT, $count ) {
 
         $curl = curl_init();
 		curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'channels/' . $Name . '/subscriptions?limit=' . $count . '&offset=0&direction=desc' );
@@ -197,7 +197,7 @@ class TwitchAPI {
 		$resp = json_decode( $o, true );
         curl_close( $curl );
 
-        return $return_json ? $o : $resp;
+        return $resp;
 
     }
     
@@ -208,10 +208,9 @@ class TwitchAPI {
      * @param int $limit     How many videos you want to retrieve.
      * @param int $offset        Object offset for pagination.
      * @param boolean $broadcasts      If you want to retrieve both broadcasts and highlights, or only highlights (defaults to only highlights).
-     * @param boolean $return_json      To return raw JSON data or decode to array with json_decode().
      * @return array        Array with video data.
      */
-    function FetchVideos( $channel, $limit = 10, $offset = 0, $broadcasts = false, $return_json = false ){
+    function FetchVideos( $channel, $limit = 10, $offset = 0, $broadcasts = false ){
     
         $curl = curl_init();
         $B = $broadcasts ? '&broadcasts=true' : '';
@@ -221,7 +220,7 @@ class TwitchAPI {
         $resp = json_decode( $o, true );
         curl_close( $curl );
 
-        return $return_json ? $o : $resp;
+        return $resp;
         
     }
     
@@ -243,7 +242,31 @@ class TwitchAPI {
         return $resp;
         
     }
+    
+    /**
+     * Gets list of blocked users from an authenticated user (requires 'user_blocks_read' scope).
+     *
+     * @param string $AT        Access token.
+     * @param string $user      Username of authenticated user.
+     * @param int $limit        Limit of how many user objects to retrieve (default: 25).
+     * @param int $offset       Object offset (default: 0).
+     * @return array
+     */
+    function Blocks( $AT, $user, $limit = 25, $offset = 0 ) {
+    
+        $curl = curl_init();
+        curl_setopt( $curl, CURLOPT_URL, $this->api_url . '/users' . $user . '/blocks?limit=' . $limit . '&offset=' . $offset );
+        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
+		curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
+		        'Authorization: OAuth ' . $AT
+		));
+        $o = curl_exec( $curl );
+        $resp = json_decode( $o, true );
+        curl_close( $curl );
 
+        return $resp;
+        
+    }
 }
 
 ?>
