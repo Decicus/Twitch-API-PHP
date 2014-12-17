@@ -161,8 +161,8 @@ class TwitchAPI {
         
         $curl = curl_init();
         curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'users/' . $username . '/subscriptions/' . $channel );
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
 		         'Authorization: OAuth ' . $AT
 		));
         $o = curl_exec( $curl );
