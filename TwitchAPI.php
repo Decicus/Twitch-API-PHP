@@ -81,31 +81,6 @@ class TwitchAPI {
     }
     
     /**
-     * Gets the display name for the authenticated user using the access token (requires 'user_read' scope).
-     *
-     * @param string $AT       Access token
-     * @return string        Display name (including capitalization).
-     */
-    function GetDisplayName( $AT ) {
-        $curl = curl_init();
-		curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'user' );
-		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
-		curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
-		         'Authorization: OAuth ' . $AT
-		));
-		$o = curl_exec( $curl );
-		$resp = json_decode( $o, true );
-        curl_close( $curl );
-
-        if( isset( $resp[ 'display_name' ] ) ) {
-            return $resp[ 'display_name' ];
-        }
-        else {
-            return false;
-        }
-    }
-    
-    /**
      * Gets user data using the access token (requires 'user_read' scope).
      *
      * @param string $AT       Access token
@@ -133,6 +108,28 @@ class TwitchAPI {
     }
     
     /**
+     * Gets the display name for a user.
+     *
+     * @param string $chan       Channel username
+     * @return string        Display name (including capitalization).
+     */
+    function DisplayName( $chan ) {
+        $curl = curl_init();
+		curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'users/' . $chan );
+		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
+		$o = curl_exec( $curl );
+		$resp = json_decode( $o, true );
+        curl_close( $curl );
+
+        if( isset( $resp[ 'display_name' ] ) ) {
+            return $resp[ 'display_name' ];
+        }
+        else {
+            return false;
+        }
+    }
+    
+    /**
      * Checks if the user is partnered (to be used with GetUserData()).
      *
      * @param array $array       Array with user data
@@ -155,24 +152,24 @@ class TwitchAPI {
      * @param string $AT       Access token
      * @param string $username      Username of the user you want to verify is subscribed.
      * @param string $channel       Channel of the streamer that the user should be subscribed to.
-     * @return boolean        If the user is subscribed or not
+     * @return int        "status codes": 404 if not subscribed, 402 if no access (usually by an invalid access token) and 100 if the user is valid and subscribed.
      */
     function IsSubscribed( $AT, $username, $channel ) {
         
         $curl = curl_init();
         curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'users/' . $username . '/subscriptions/' . $channel );
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
 		         'Authorization: OAuth ' . $AT
 		));
         $o = curl_exec( $curl );
         $response = json_decode( $o, true );
         curl_close( $curl );
         
-        if( isset( $response['error'] ) ) {
-            return false;
+        if( isset( $response['status'] ) ) {
+            return $response['status'];
         } else {
-            return true;
+            return 100;
         }
         
     }
@@ -266,6 +263,26 @@ class TwitchAPI {
 
         return $resp;
         
+    }
+    
+    /**
+     * Returns live streams that meets a certain search query in their stream title.
+     *
+     * @param string $q        Search query
+     * @param int $limit        Limit of how many user objects to retrieve (default: 25).
+     * @param int $offset       Object offset (default: 0).
+     * @return array
+     */
+    function StreamsBySearch( $q = "", $limit = 25, $offset = 0 ) {
+        $q = urlencode( $q );
+        $curl = curl_init();
+        curl_setopt( $curl, CURLOPT_URL, $this->api_url . '/search/streams?q=' . $q . '&limit=' . $limit . '&offset=' . $offset );
+        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
+        $o = curl_exec( $curl );
+        $resp = json_decode( $o, true );
+        curl_close( $curl );
+        
+        return $resp;
     }
 }
 
