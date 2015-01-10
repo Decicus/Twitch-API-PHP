@@ -200,10 +200,10 @@ class TwitchAPI {
         $response = json_decode( $o, true );
         curl_close( $curl );
         
-        if( isset( $response['status'] ) ) {
-            return $response['status'];
-        } else {
+        if( isset( $response['created_at'] ) ) {
             return 100;
+        } else {
+            return $response['error'];
         }
         
     }
