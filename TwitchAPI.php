@@ -115,6 +115,31 @@ class TwitchAPI {
     }
     
     /**
+     * Gets the display name for the authenticated user using the access token (requires 'user_read' scope).
+     *
+     * @param string $AT       Access token
+     * @return string        Display name (including capitalization).
+     */
+    function NameFromData( $AT ) {
+        $curl = curl_init();
+		curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'user' );
+		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
+		curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
+		         'Authorization: OAuth ' . $AT
+		));
+		$o = curl_exec( $curl );
+		$resp = json_decode( $o, true );
+        curl_close( $curl );
+
+        if( isset( $resp[ 'display_name' ] ) ) {
+            return $resp[ 'display_name' ];
+        }
+        else {
+            return false;
+        }
+    }
+    
+    /**
      * Checks if the user is partnered (to be used with GetUserData()).
      *
      * @param array $array       Array with user data
