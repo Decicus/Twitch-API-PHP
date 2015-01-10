@@ -31,22 +31,7 @@ class TwitchAPI {
      * @return string        URL to authenticate with.
      */
     public function Authenticate( $scope = [] ) {
-        $val = '';
-        $n = 0;
-        $length = count( $scope );
-        foreach( $scope as $s ) {
-            if( $n == $length - 1 ) {
-                $s .= '';
-                $val .= $s;
-            }
-            else {
-                $s .= '+';
-                $val .= $s;
-            }
-
-            $n++;
-        }
-        $s = $val;
+        $s = implode( "+", $scope );
         $url = $this->api_url . 'oauth2/authorize?response_type=code&client_id=' . $this->client_id . '&redirect_uri=' . $this->redirect_url . '&scope=' . $s;
         return $url;
     }
