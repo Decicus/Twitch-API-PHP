@@ -66,6 +66,30 @@ class TwitchAPI {
     }
     
     /**
+     * Gets basic user data from channel name
+     *
+     * @param string $Name       Channel name
+     * @return array        Array with basic user data
+     */
+    function GetBasicData( $name ) {
+
+        $curl = curl_init();
+		curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'users/' . $name );
+		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
+		$o = curl_exec( $curl );
+		$resp = json_decode( $o, true );
+        curl_close( $curl );
+
+        if( !isset( $resp[ 'error' ] ) ) {
+            return $resp;
+        }
+        else {
+            return false;
+        }
+
+    }
+    
+    /**
      * Gets user data using the access token (requires 'user_read' scope).
      *
      * @param string $AT       Access token
@@ -294,6 +318,28 @@ class TwitchAPI {
         
         return $resp;
     }
+    
+    /**
+     * Returns data depending on if the $user followers $channel
+     *
+     * @param string $user      Username of the follower
+     * @param string $channel   Username of the channel the follower should be checked for
+     * @return array           Follower data between user and channel
+     */
+    function FollowerData( $user, $channel ) {
+        $curl = curl_init();
+        curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'users/' . $user . '/follows/channels/' . $channel );
+        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
+        $o = curl_exec( $curl );
+        $resp = json_decode( $o, true );
+        curl_close( $curl );
+        if( isset( $resp['error'] ) ) {
+            return false;
+        } else {
+            return $resp;
+        }
+    }
+    
 }
 
 ?>
