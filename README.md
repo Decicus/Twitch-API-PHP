@@ -13,21 +13,21 @@ No dedicated documentation page has been setup yet. However, there are comments 
   
 Examples
 --------------
-### Initialization ###  
+### Initialization   
 Requires a registered developer application on Twitch: [http://www.twitch.tv/settings/connections](http://www.twitch.tv/settings/connections)  
 All parameters must be the same as in the developer application settings.  
 ```
     $TwitchAPI = new TwitchAPI( 'CLIENT_ID', 'CLIENT_SECRET', 'REDIRECT_URL' );
 ```  
 
-### Generating authentication URL ###  
+### Generating authentication URL   
 Array with scopes required. List of scopes can be found here under "Scopes": [https://github.com/justintv/Twitch-API/blob/master/authentication.md](https://github.com/justintv/Twitch-API/blob/master/authentication.md)  
 If you're unsure what scope you require for your usage, look at the comments/documentation.  
 ```
     $AuthenticationURL = $TwitchAPI->Authenticate( [ 'user_read', 'chat_login' ] );
 ```  
 
-### Getting access token ###
+### Getting access token 
 Twitch API redirects back to the "Redirect URL" set in the application settings and the initialization.  
 The authentication code will be available via the code GET variable.
 ```
