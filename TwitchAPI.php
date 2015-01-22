@@ -1,6 +1,8 @@
 <?php
 /*
 *   Twitch API Class
+*   Created by Alex Thomassen (Decicus): https://www.thomassen.xyz/
+*   Licensed under the MIT license: https://github.com/Decicus/Twitch-API-PHP/blob/master/LICENSE
 */
 
 class TwitchAPI {
@@ -78,7 +80,7 @@ class TwitchAPI {
         curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'users/' . $name );
         curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
         curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
-                 'Client-ID: ' . $this->client_id
+            'Client-ID: ' . $this->client_id
         ));
         $o = curl_exec( $curl );
         $resp = json_decode( $o, true );
@@ -132,7 +134,7 @@ class TwitchAPI {
         curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'users/' . $chan );
         curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
         curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
-                 'Client-ID: ' . $this->client_id
+            'Client-ID: ' . $this->client_id
         ));
         $o = curl_exec( $curl );
         $resp = json_decode( $o, true );
@@ -203,8 +205,8 @@ class TwitchAPI {
         curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'users/' . $username . '/subscriptions/' . $channel );
         curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
-                 'Client-ID: ' . $this->client_id,
-                 'Authorization: OAuth ' . $AT
+            'Client-ID: ' . $this->client_id,
+            'Authorization: OAuth ' . $AT
         ));
         $o = curl_exec( $curl );
         $response = json_decode( $o, true );
@@ -232,8 +234,8 @@ class TwitchAPI {
         curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'channels/' . $Name . '/subscriptions?limit=' . $count . '&offset=0&direction=desc' );
         curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
         curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
-                'Client-ID: ' . $this->client_id,
-                'Authorization: OAuth ' . $AT
+            'Client-ID: ' . $this->client_id,
+            'Authorization: OAuth ' . $AT
         ));
         $o = curl_exec( $curl );
         $resp = json_decode( $o, true );
@@ -259,7 +261,7 @@ class TwitchAPI {
         curl_setopt( $curl, CURLOPT_URL, $this->api_url . '/channels' . $channel . '/videos?limit=' . $limit . '&offset=' . $offset . $B );
         curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
         curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
-                 'Client-ID: ' . $this->client_id
+            'Client-ID: ' . $this->client_id
         ));
         $o = curl_exec( $curl );
         $resp = json_decode( $o, true );
@@ -281,7 +283,7 @@ class TwitchAPI {
         curl_setopt( $curl, CURLOPT_URL, $this->api_url . '/streams/' . $channel );
         curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
         curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
-                 'Client-ID: ' . $this->client_id
+            'Client-ID: ' . $this->client_id
         ));
         $o = curl_exec( $curl );
         $resp = json_decode( $o, true );
@@ -331,7 +333,7 @@ class TwitchAPI {
         curl_setopt( $curl, CURLOPT_URL, $this->api_url . '/search/streams?q=' . $q . '&limit=' . $limit . '&offset=' . $offset );
         curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
         curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
-                 'Client-ID: ' . $this->client_id
+            'Client-ID: ' . $this->client_id
         ));
         $o = curl_exec( $curl );
         $resp = json_decode( $o, true );
@@ -352,7 +354,7 @@ class TwitchAPI {
         curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'users/' . $user . '/follows/channels/' . $channel );
         curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
         curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
-                 'Client-ID: ' . $this->client_id
+            'Client-ID: ' . $this->client_id
         ));
         $o = curl_exec( $curl );
         $resp = json_decode( $o, true );
