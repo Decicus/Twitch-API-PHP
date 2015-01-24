@@ -15,9 +15,10 @@ Examples
 --------------
 ### Initialization   
 Requires a registered developer application on Twitch: [http://www.twitch.tv/settings/connections](http://www.twitch.tv/settings/connections)  
-All parameters must be the same as in the developer application settings.  
+The three first parameters must be the same as in the developer application settings.  
+The fourth parameter is an optional boolean (defaults to true), which enables/disables SSL_VERIFYPEER in the cURL requests. Certain setups (mainly Windows after my tests) do not seem to connect with the API correctly if this is set to true. I only recommend setting this to false if it is necessary.  
 ```
-    $TwitchAPI = new TwitchAPI( 'CLIENT_ID', 'CLIENT_SECRET', 'REDIRECT_URL' );
+    $TwitchAPI = new TwitchAPI( 'CLIENT_ID', 'CLIENT_SECRET', 'REDIRECT_URL', true );
 ```  
 
 ### Generating authentication URL   
