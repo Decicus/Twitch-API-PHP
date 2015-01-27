@@ -224,7 +224,7 @@ class TwitchAPI {
         if( isset( $response['created_at'] ) ) {
             return 100;
         } else {
-            return $response['error'];
+            return $response['status'];
         }
         
     }
