@@ -205,7 +205,7 @@ class TwitchAPI {
      * @param string $AT       Access token
      * @param string $username      Username of the user you want to verify is subscribed.
      * @param string $channel       Channel of the streamer that the user should be subscribed to.
-     * @return int        "status codes": 404 if not subscribed, 402 if no access (usually by an invalid access token) and 100 if the user is valid and subscribed.
+     * @return int        "status codes": 404 if not subscribed, 401 if no access (usually by an invalid access token) and 100 if the user is valid and subscribed.
      */
     function IsSubscribed( $AT, $username, $channel ) {
         
