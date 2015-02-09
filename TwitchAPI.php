@@ -41,6 +41,25 @@ class TwitchAPI {
         $url = $this->api_url . 'oauth2/authorize?response_type=code&client_id=' . $this->client_id . '&redirect_uri=' . $this->redirect_url . '&scope=' . $s;
         return $url;
     }
+    
+    function get( $url = '', $header = [] ) {
+        $header = ( empty( $header ) ? [ 'Client-ID: ' . $this->client_id ] : $header );
+        $curl = curl_init();
+        curl_setopt( $curl, CURLOPT_URL, $this->api_url . $url );
+        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
+        curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, $this->verify_peer );
+        curl_setopt( $curl, CURLOPT_HTTPHEADER, $header );
+        $o = curl_exec( $curl );
+        $resp = json_decode( $o, true );
+        curl_close( $curl );
+
+        if( !isset( $resp[ 'error' ] ) ) {
+            return $resp;
+        }
+        else {
+            return false;
+        }
+    }
 
     /**
      * Retrieves the access token for the user that authenticated.
@@ -79,24 +98,9 @@ class TwitchAPI {
      * @return array        Array with basic user data
      */
     function GetBasicData( $name ) {
-
-        $curl = curl_init();
-        curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'users/' . $name );
-        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, $this->verify_peer );
-        curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
-            'Client-ID: ' . $this->client_id
-        ));
-        $o = curl_exec( $curl );
-        $resp = json_decode( $o, true );
-        curl_close( $curl );
-
-        if( !isset( $resp[ 'error' ] ) ) {
-            return $resp;
-        }
-        else {
-            return false;
-        }
+        
+        $data = $this->get( 'users/' . $name );
+        return $data;
 
     }
     
@@ -107,25 +111,13 @@ class TwitchAPI {
      * @return array        Array with user data
      */
     function GetUserData( $AT ) {
-
-        $curl = curl_init();
-        curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'user' );
-        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, $this->verify_peer );
-        curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
+        
+        $h = [
             'Client-ID: ' . $this->client_id,
             'Authorization: OAuth ' . $AT
-        ));
-        $o = curl_exec( $curl );
-        $resp = json_decode( $o, true );
-        curl_close( $curl );
-
-        if( !isset( $resp[ 'error' ] ) ) {
-            return $resp;
-        }
-        else {
-            return false;
-        }
+        ];
+        $data = $this->get( 'user', $h );
+        return $data;
 
     }
     
@@ -136,23 +128,10 @@ class TwitchAPI {
      * @return string        Display name (including capitalization).
      */
     function DisplayName( $chan ) {
-        $curl = curl_init();
-        curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'users/' . $chan );
-        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, $this->verify_peer );
-        curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
-            'Client-ID: ' . $this->client_id
-        ));
-        $o = curl_exec( $curl );
-        $resp = json_decode( $o, true );
-        curl_close( $curl );
-
-        if( isset( $resp[ 'display_name' ] ) ) {
-            return $resp[ 'display_name' ];
-        }
-        else {
-            return false;
-        }
+        
+        $name = $this->get( 'users/' . $chan );
+        return ( isset( $name['display_name'] ) ? $name['display_name'] : false );
+        
     }
     
     /**
@@ -162,40 +141,26 @@ class TwitchAPI {
      * @return string        Display name (including capitalization).
      */
     function NameFromData( $AT ) {
-        $curl = curl_init();
-        curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'user' );
-        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, $this->verify_peer );
-        curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
+        
+        $h = [
             'Client-ID: ' . $this->client_id,
             'Authorization: OAuth ' . $AT
-        ));
-        $o = curl_exec( $curl );
-        $resp = json_decode( $o, true );
-        curl_close( $curl );
-
-        if( isset( $resp[ 'display_name' ] ) ) {
-            return $resp[ 'display_name' ];
-        }
-        else {
-            return false;
-        }
+        ];
+        $data = $this->get( 'user', $h );
+        return ( isset( $data['display_name'] ) ? $data['display_name'] : false );
+        
     }
     
     /**
-     * Checks if the user is partnered (to be used with GetUserData()).
+     * Checks if a channel is partnered.
      *
-     * @param array $array       Array with user data
+     * @param string $chan      Channel to check if is partnered.
      * @return boolean       If the user is a partnered streamer or not
      */
-    function CheckPartnered( $array ) {
-
-        if( $array[ 'partnered' ] ) {
-            return true;
-        }
-        else {
-            return false;
-        }
+    function IsPartnered( $chan ) {
+    
+        $data = $this->get( 'channels/' . $chan );
+        return $data['partner'];
 
     }
     
@@ -209,23 +174,12 @@ class TwitchAPI {
      */
     function IsSubscribed( $AT, $username, $channel ) {
         
-        $curl = curl_init();
-        curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'users/' . $username . '/subscriptions/' . $channel );
-        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, $this->verify_peer );
-        curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
+        $h = [
             'Client-ID: ' . $this->client_id,
             'Authorization: OAuth ' . $AT
-        ));
-        $o = curl_exec( $curl );
-        $response = json_decode( $o, true );
-        curl_close( $curl );
-        
-        if( isset( $response['created_at'] ) ) {
-            return 100;
-        } else {
-            return $response['status'];
-        }
+        ];
+        $sub = $this->get( 'users/' . $username . '/subscriptions/' . $channel, $h );
+        return ( isset( $sub['created_at'] ) ? 100 : $sub['status'] );
         
     }
     
@@ -235,23 +189,17 @@ class TwitchAPI {
      * @param string $Name       Channel name of partnered streamer.
      * @param string $AT        Access token of channel
      * @param int $count        How many users to retrieve data of.
+     * @param 
      * @return array        Array with subscriber data
      */
-    function GetSubData( $Name, $AT, $count ) {
-
-        $curl = curl_init();
-        curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'channels/' . $Name . '/subscriptions?limit=' . $count . '&offset=0&direction=desc' );
-        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, $this->verify_peer );
-        curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
+    function GetSubData( $Name, $AT, $count = 1, $offset = 0 ) {
+        
+        $h = [
             'Client-ID: ' . $this->client_id,
             'Authorization: OAuth ' . $AT
-        ));
-        $o = curl_exec( $curl );
-        $resp = json_decode( $o, true );
-        curl_close( $curl );
-
-        return $resp;
+        ];
+        $data = $this->get( 'channels/' . $Name . '/subscriptions?limit=' . $count . '&offset=' . $offset . '&direction=desc', $h );
+        return $data;
 
     }
     
@@ -262,23 +210,13 @@ class TwitchAPI {
      * @param int $limit     How many videos you want to retrieve.
      * @param int $offset        Object offset for pagination.
      * @param boolean $broadcasts      If you want to retrieve both broadcasts and highlights, or only highlights (defaults to only highlights).
-     * @return array        Array with video data.
+     * @return array        Array with video data, video data may be empty.
      */
     function FetchVideos( $channel, $limit = 10, $offset = 0, $broadcasts = false ){
     
-        $curl = curl_init();
         $B = $broadcasts ? '&broadcasts=true' : '';
-        curl_setopt( $curl, CURLOPT_URL, $this->api_url . '/channels' . $channel . '/videos?limit=' . $limit . '&offset=' . $offset . $B );
-        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, $this->verify_peer );
-        curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
-            'Client-ID: ' . $this->client_id
-        ));
-        $o = curl_exec( $curl );
-        $resp = json_decode( $o, true );
-        curl_close( $curl );
-
-        return $resp;
+        $videos = $this->get( '/channels' . $channel . '/videos?limit=' . $limit . '&offset=' . $offset . $B );
+        return $videos['videos'];
         
     }
     
@@ -286,22 +224,12 @@ class TwitchAPI {
      * Gets stream data for a channel.
      *
      * @param string $channel       Channel name of streamer you want to retrieve channel data for.
-     * @return array        Array with channel data.
+     * @return array        Array with channel data or NULL if offline.
      */
     function Streams( $channel ) {
-    
-        $curl = curl_init();
-        curl_setopt( $curl, CURLOPT_URL, $this->api_url . '/streams/' . $channel );
-        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, $this->verify_peer );
-        curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
-            'Client-ID: ' . $this->client_id
-        ));
-        $o = curl_exec( $curl );
-        $resp = json_decode( $o, true );
-        curl_close( $curl );
         
-        return $resp;
+        $streams = $this-get( '/streams/' . $channel );
+        return $streams;
         
     }
     
@@ -315,20 +243,13 @@ class TwitchAPI {
      * @return array
      */
     function Blocks( $AT, $user, $limit = 25, $offset = 0 ) {
-    
-        $curl = curl_init();
-        curl_setopt( $curl, CURLOPT_URL, $this->api_url . '/users' . $user . '/blocks?limit=' . $limit . '&offset=' . $offset );
-        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, $this->verify_peer );
-        curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
+        
+        $h = [
             'Client-ID: ' . $this->client_id,
             'Authorization: OAuth ' . $AT
-        ));
-        $o = curl_exec( $curl );
-        $resp = json_decode( $o, true );
-        curl_close( $curl );
-
-        return $resp;
+        ];
+        $blocks = $this->get( '/users' . $user . '/blocks?limit=' . $limit . '&offset=' . $offset, $h );
+        return $blocks;
         
     }
     
@@ -341,19 +262,11 @@ class TwitchAPI {
      * @return array
      */
     function StreamsBySearch( $q = "", $limit = 25, $offset = 0 ) {
-        $q = urlencode( $q );
-        $curl = curl_init();
-        curl_setopt( $curl, CURLOPT_URL, $this->api_url . '/search/streams?q=' . $q . '&limit=' . $limit . '&offset=' . $offset );
-        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, $this->verify_peer );
-        curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
-            'Client-ID: ' . $this->client_id
-        ));
-        $o = curl_exec( $curl );
-        $resp = json_decode( $o, true );
-        curl_close( $curl );
         
-        return $resp;
+        $q = urlencode( $q );
+        $search = $this->get( '/search/streams?q=' . $q . '&limit=' . $limit . '&offset=' . $offset );
+        return $search;
+        
     }
     
     /**
@@ -364,21 +277,10 @@ class TwitchAPI {
      * @return array           Follower data between user and channel
      */
     function FollowerData( $user, $channel ) {
-        $curl = curl_init();
-        curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'users/' . $user . '/follows/channels/' . $channel );
-        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, $this->verify_peer );
-        curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
-            'Client-ID: ' . $this->client_id
-        ));
-        $o = curl_exec( $curl );
-        $resp = json_decode( $o, true );
-        curl_close( $curl );
-        if( isset( $resp['error'] ) ) {
-            return false;
-        } else {
-            return $resp;
-        }
+        
+        $f = $this->get( 'users/' . $user . '/follows/channels/' . $channel );
+        return ( isset( $f['error'] ) ? false : $f );
+        
     }
     
     /**
@@ -388,21 +290,14 @@ class TwitchAPI {
      * @return string or boolean    Direct image link to badge if it exists, "false" (boolean) if it doesn't
      */
     function GetBadge( $channel ) {
-        $curl = curl_init();
-        curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'chat/' . $channel . '/badges' );
-        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, $this->verify_peer );
-        curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
-            'Client-ID: ' . $this->client_id
-        ));
-        $o = curl_exec( $curl );
-        $resp = json_decode( $o, true );
-        curl_close( $curl );
+        
+        $resp = $this->get( 'chat/' . $channel . '/badges' );
         if( isset( $resp[ 'subscriber' ] ) && $resp[ 'subscriber' ] != NULL ) {
             return $resp[ 'subscriber' ][ 'image' ];
         } else {
             return false;
         }
+        
     }
     
     /**
@@ -412,16 +307,8 @@ class TwitchAPI {
      * @return array or boolean Array with emote-data if channel has subscriber emotes, false if none exist.
      */
     function GetEmotes( $channel ) {
-        $curl = curl_init();
-        curl_setopt( $curl, CURLOPT_URL, $this->api_url . 'chat/' . $channel . '/emoticons' );
-        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, $this->verify_peer );
-        curl_setopt( $curl, CURLOPT_HTTPHEADER, array(
-            'Client-ID: ' . $this->client_id
-        ));
-        $o = curl_exec( $curl );
-        $resp = json_decode( $o, true );
-        curl_close( $curl );
+        
+        $resp = $this-get( 'chat/' . $channel . '/emoticons' );
         $emotes = [];
         if( isset( $resp[ 'emoticons' ] ) ) {
             foreach( $resp[ 'emoticons' ] as $emoticon ) {
@@ -440,6 +327,7 @@ class TwitchAPI {
         } else {
             return false;
         }
+        
     }
     
 }
