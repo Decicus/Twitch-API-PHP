@@ -42,6 +42,13 @@ class TwitchAPI {
         return $url;
     }
     
+    /**
+     * Standard GET function with cURL.
+     *
+     * @param string $url       Sub-URL after the main API URL.
+     * @param array $header     Header to be sent in the HTTP request. Default header contains the Client-ID, which is required for every request.
+     * @return array        JSON-decoded array with information.
+     */
     function get( $url = '', $header = [] ) {
         $header = ( empty( $header ) ? [ 'Client-ID: ' . $this->client_id ] : $header );
         $curl = curl_init();
