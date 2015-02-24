@@ -60,12 +60,7 @@ class TwitchAPI {
         $resp = json_decode( $o, true );
         curl_close( $curl );
 
-        if( !isset( $resp[ 'error' ] ) ) {
-            return $resp;
-        }
-        else {
-            return false;
-        }
+        return $resp;
     }
 
     /**
@@ -167,7 +162,11 @@ class TwitchAPI {
     function IsPartnered( $chan ) {
     
         $data = $this->get( 'channels/' . $chan );
-        return $data['partner'];
+        if( isset( $data['error'] ) ) {
+            return NULL;
+        } else {
+            return $data['partner'];
+        }
 
     }
     
@@ -186,7 +185,11 @@ class TwitchAPI {
             'Authorization: OAuth ' . $AT
         ];
         $sub = $this->get( 'users/' . $username . '/subscriptions/' . $channel, $h );
-        return ( isset( $sub['created_at'] ) ? 100 : $sub['status'] );
+        if( isset( $sub['created_at'] ) ) {
+            return 100;
+        } else {
+            return $sub['status'];
+        }
         
     }
     
