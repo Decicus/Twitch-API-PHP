@@ -238,7 +238,7 @@ class TwitchAPI {
      */
     function Streams( $channel ) {
         
-        $streams = $this-get( '/streams/' . $channel );
+        $streams = $this->get( '/streams/' . $channel );
         return $streams;
         
     }
@@ -318,7 +318,7 @@ class TwitchAPI {
      */
     function GetEmotes( $channel ) {
         
-        $resp = $this-get( 'chat/' . $channel . '/emoticons' );
+        $resp = $this->get( 'chat/' . $channel . '/emoticons' );
         $emotes = [];
         if( isset( $resp[ 'emoticons' ] ) ) {
             foreach( $resp[ 'emoticons' ] as $emoticon ) {
