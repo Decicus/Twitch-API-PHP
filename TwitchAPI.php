@@ -200,7 +200,7 @@ class TwitchAPI {
      * @param string $AT        Access token of channel
      * @param int $count        How many users to retrieve data of.
      * @param 
-     * @return array        Array with subscriber data
+     * @return array or int     Array with subscriber data, 401 if invalid access token, 422 if channel is not partnered.
      */
     function GetSubData( $Name, $AT, $count = 1, $offset = 0 ) {
         
@@ -209,7 +209,11 @@ class TwitchAPI {
             'Authorization: OAuth ' . $AT
         ];
         $data = $this->get( 'channels/' . $Name . '/subscriptions?limit=' . $count . '&offset=' . $offset . '&direction=desc', $h );
-        return $data;
+        if( isset( $data['status'] ) ) {
+            return $data['status'];
+        } else {
+            return $data;
+        }
 
     }
     
@@ -225,7 +229,7 @@ class TwitchAPI {
     function FetchVideos( $channel, $limit = 10, $offset = 0, $broadcasts = false ){
     
         $B = $broadcasts ? '&broadcasts=true' : '';
-        $videos = $this->get( '/channels' . $channel . '/videos?limit=' . $limit . '&offset=' . $offset . $B );
+        $videos = $this->get( '/channels/' . $channel . '/videos?limit=' . $limit . '&offset=' . $offset . $B );
         return $videos['videos'];
         
     }
@@ -239,7 +243,7 @@ class TwitchAPI {
     function Streams( $channel ) {
         
         $streams = $this->get( '/streams/' . $channel );
-        return $streams;
+        return $streams['stream'];
         
     }
     
@@ -250,7 +254,7 @@ class TwitchAPI {
      * @param string $user      Username of authenticated user.
      * @param int $limit        Limit of how many user objects to retrieve (default: 25).
      * @param int $offset       Object offset (default: 0).
-     * @return array
+     * @return array or int     Array with blocked users, 401 if invalid access token.
      */
     function Blocks( $AT, $user, $limit = 25, $offset = 0 ) {
         
@@ -258,8 +262,12 @@ class TwitchAPI {
             'Client-ID: ' . $this->client_id,
             'Authorization: OAuth ' . $AT
         ];
-        $blocks = $this->get( '/users' . $user . '/blocks?limit=' . $limit . '&offset=' . $offset, $h );
-        return $blocks;
+        $blocks = $this->get( '/users/' . $user . '/blocks?limit=' . $limit . '&offset=' . $offset, $h );
+        if( isset( $blocks['status'] ) ) {
+            return $blocks['status'];
+        } else {
+            return $blocks['blocks'];
+        }
         
     }
     
@@ -269,13 +277,13 @@ class TwitchAPI {
      * @param string $q        Search query
      * @param int $limit        Limit of how many user objects to retrieve (default: 25).
      * @param int $offset       Object offset (default: 0).
-     * @return array
+     * @return array            Array with channel and stream data
      */
     function StreamsBySearch( $q = "", $limit = 25, $offset = 0 ) {
         
         $q = urlencode( $q );
         $search = $this->get( '/search/streams?q=' . $q . '&limit=' . $limit . '&offset=' . $offset );
-        return $search;
+        return $search['streams'];
         
     }
     
@@ -289,21 +297,29 @@ class TwitchAPI {
     function FollowerData( $user, $channel ) {
         
         $f = $this->get( 'users/' . $user . '/follows/channels/' . $channel );
-        return ( isset( $f['error'] ) ? false : $f );
+        if( isset( $f['status'] ) ) {
+            return $f['status'];
+        } else {
+            return $f;
+        }
         
     }
     
     /**
      * Returns badge URL or false (boolean) if channel doesn't have a badge
      *
-     * @param string $channel   Channelname to check for badge.
-     * @return string or boolean    Direct image link to badge if it exists, "false" (boolean) if it doesn't
+     * @param string $channel       Channelname to check for badge.
+     * @return array or boolean     Array with the badge in three sizes (18x18, 36x36 and 72x72), false if none exists.
      */
     function GetBadge( $channel ) {
         
         $resp = $this->get( 'chat/' . $channel . '/badges' );
         if( isset( $resp[ 'subscriber' ] ) && $resp[ 'subscriber' ] != NULL ) {
-            return $resp[ 'subscriber' ][ 'image' ];
+            $badgeDef = str_replace( [ 'http://', '18x18.png' ], [ 'https://', '' ], $resp[ 'subscriber' ][ 'image' ] );
+            $badge[] = $badgeDef . '18x18.png';
+            $badge[] = $badgeDef . '36x36.png';
+            $badge[] = $badgeDef . '72x72.png';
+            return $badge;
         } else {
             return false;
         }
@@ -313,8 +329,8 @@ class TwitchAPI {
     /**
      * Returns array of subscriber emotes or false if none exist.
      *
-     * @param string $channel   Channelname to check for subscriber emotes.
-     * @return array or boolean Array with emote-data if channel has subscriber emotes, false if none exist.
+     * @param string $channel       Channelname to check for subscriber emotes.
+     * @return array or boolean     Array with emote-data if channel has subscriber emotes, false if none exist.
      */
     function GetEmotes( $channel ) {
         
