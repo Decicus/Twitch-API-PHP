@@ -356,6 +356,24 @@ class TwitchAPI {
         
     }
     
+    /**
+     * Returns array of users that follow a specific channel
+     *
+     * @param string $channel       Channel to get followers of.
+     * @param int $limit            Max. number of objects in array, default is 25, max is 100.
+     * @param int $offset           Pagination offset, default is 0.
+     * @param string $direction     Date-sorting direction, valid values are "desc" (descending) and "asc" (ascending).
+     * @return array or int         Array with follower(s) or 404 if channel is not valid.
+     */
+    function ChannelFollows( $channel, $limit = 25, $offset = 0, $direction = 'desc' ) {
+        $data = $this->get( '/channels/' . $channel . '/follows?limit=' . $limit . '&offset=' . $offset . '&direction=' . $direction );
+        if( isset( $data['status'] ) ) {
+            return $data['status'];
+        } else {
+            return $data['follows'];
+        }
+    }
+    
 }
 
 ?>
