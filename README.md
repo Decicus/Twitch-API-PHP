@@ -16,7 +16,7 @@ Examples
 ### Initialization   
 Requires a registered developer application on Twitch: [http://www.twitch.tv/settings/connections](http://www.twitch.tv/settings/connections)  
 The three first parameters must be the same as in the developer application settings.  
-The fourth parameter is an optional boolean (defaults to true), which enables/disables SSL_VERIFYPEER in the cURL requests. Certain setups (mainly Windows after my tests) do not seem to connect with the API correctly if this is set to true. I only recommend setting this to false if it is necessary.  
+The fourth parameter is an optional boolean (defaults to true), which enables/disables SSL_VERIFYPEER in the cURL requests. Certain setups (mainly Windows after my tests) do not seem to connect with the API correctly if this is set to true. I recommend attempting to [fix your root certificate bundle](http://snippets.webaware.com.au/howto/stop-turning-off-curlopt_ssl_verifypeer-and-fix-your-php-config/) before using this option.
 ```
     $TwitchAPI = new TwitchAPI( 'CLIENT_ID', 'CLIENT_SECRET', 'REDIRECT_URL', true );
 ```  
