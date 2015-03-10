@@ -11,6 +11,11 @@ Documentation
 No dedicated documentation page has been setup yet. However, there are comments in the code itself, which should guide you in the right direction.  
 **Documentation page ETA: _Soon™_**
   
+Releases
+--------------
+I would recommend taking a look at the [releases](https://github.com/Decicus/Twitch-API-PHP/releases), as the ones listed there would be the most stable and fully tested ones.  
+While the current, "in-dev" might have more features that would be neat to utilize, they may not be tested and ready for release. Therefore it is recommended to use the latest one from the "Releases" tab.
+  
 Examples
 --------------
 ### Initialization   
