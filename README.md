@@ -8,8 +8,8 @@ The code itself should be commented enough, but currently there is no dedicated 
   
 Documentation
 --------------
-No dedicated documentation page has been setup yet. However, there are comments in the code itself, which should guide you in the right direction.  
-**Documentation page ETA: _Soon™_**
+Most of the documentation is in the code itself. However, there is a phpDocumentor page that hasn't been fully "optimized".  
+[Documentation page](https://decapi.me/twitchapiphp/classes/TwitchAPI.html)
   
 Releases
 --------------
